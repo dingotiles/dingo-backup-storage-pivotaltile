@@ -8,8 +8,7 @@ inputs:
 - name: tile
 - name: tile-version
 - name: dingo-backup-storage-boshrelease
-  path: vault
-- name: broker-registrar
+  path: dingo-backup-storage
 - name: pivnet-stemcell
 
 outputs:
