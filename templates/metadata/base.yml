@@ -8,7 +8,7 @@ icon_image: iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAKn2lDQ1BJQ0MgUHJvZmls
 
 product_version: (( params "Tile needs a version" ))
 metadata_version: "1.7"
-minimum_version_for_upgrade: "1.6.0.0"
+minimum_version_for_upgrade: ~
 rank: 1
 
 stemcell_criteria:
