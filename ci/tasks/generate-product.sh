@@ -51,6 +51,7 @@ spruce merge --prune meta \
   tile/tmp/metadata/releases.yml \
   tile/templates/metadata/form_types.yml \
   tile/templates/metadata/property_blueprints.yml \
+  tile/templates/metadata/job_compilation.yml \
   tile/templates/metadata/job_storage.yml \
     > workspace/metadata/dingo-backup-storage.yml
 
