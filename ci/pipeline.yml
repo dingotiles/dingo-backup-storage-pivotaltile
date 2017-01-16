@@ -20,16 +20,16 @@ jobs:
       trigger: true
       params: {globs: ["*vsphere*"]}
   - aggregate:
-    - task: upload-stemcell-opsmgr17
+    - task: upload-stemcell-opsmgr18
       file: tile/ci/tasks/upload-stemcell.yml
       params:
-        opsmgr_url: {{opsmgr17-url}}
-        opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
-        opsmgr_username: {{opsmgr17-username}}
-        opsmgr_password: {{opsmgr17-password}}
+        opsmgr_url: {{opsmgr18-url}}
+        opsmgr_skip_ssl_verification: {{opsmgr18-skip-ssl-verification}}
+        opsmgr_username: {{opsmgr18-username}}
+        opsmgr_password: {{opsmgr18-password}}
 
 - name: create-product
-  serial_groups: [opsmgr17]
+  serial_groups: [opsmgr18]
   plan:
   - aggregate:
     - get: tile
@@ -53,17 +53,17 @@ jobs:
     params: {file: product/dingo-backup-storage-*.pivotal}
   - put: tile-version
     params: {file: tile-version/number}
-  - task: upload-product-opsmgr17
+  - task: upload-product-opsmgr18
     file: tile/ci/tasks/upload-product.yml
     params:
-      opsmgr_url: {{opsmgr17-url}}
-      opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
-      opsmgr_username: {{opsmgr17-username}}
-      opsmgr_password: {{opsmgr17-password}}
+      opsmgr_url: {{opsmgr18-url}}
+      opsmgr_skip_ssl_verification: {{opsmgr18-skip-ssl-verification}}
+      opsmgr_username: {{opsmgr18-username}}
+      opsmgr_password: {{opsmgr18-password}}
       opsmgr_version: 1.7
 
 - name: shipit
-  serial_groups: [opsmgr17]
+  serial_groups: [opsmgr18]
   plan:
   - aggregate:
     - { get: tile }
@@ -79,13 +79,13 @@ jobs:
   - put: generated-tile
     params: {file: reversioned-product/dingo-backup-storage-*.pivotal}
   - aggregate:
-    - task: upload-product-opsmgr17
+    - task: upload-product-opsmgr18
       file: tile/ci/tasks/upload-product.yml
       params:
-        opsmgr_url: {{opsmgr17-url}}
-        opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
-        opsmgr_username: {{opsmgr17-username}}
-        opsmgr_password: {{opsmgr17-password}}
+        opsmgr_url: {{opsmgr18-url}}
+        opsmgr_skip_ssl_verification: {{opsmgr18-skip-ssl-verification}}
+        opsmgr_username: {{opsmgr18-username}}
+        opsmgr_password: {{opsmgr18-password}}
         opsmgr_version: 1.7
 
 - name: patch
