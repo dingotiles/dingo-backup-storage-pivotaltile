@@ -38,11 +38,6 @@ job_types:
       constraints:
         min: 1
         max: 1
-  property_blueprints:
-    - name: vm_credentials
-      type: salted_credentials
-      default:
-        identity: vcap
   manifest: |
     ssh_user:
       username: (( ssh_user_username ))
