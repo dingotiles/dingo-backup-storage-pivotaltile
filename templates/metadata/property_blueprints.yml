@@ -1,6 +1,1 @@
----
-property_blueprints:
-- name: ssh_user_username
-  type: secret
-- name: ssh_user_key
-  type: rsa_pkey_credentials
+--- {}
