@@ -74,7 +74,7 @@ echo "Installing product (guid ${product_install_uuid})"
 
 echo "Running installation process"
 response=$(curl -f ${insecure} -H "Authorization: Bearer ${access_token}" \
-  "${opsmgr_url}/api/v0/installations" -d "ignore_warnings=1&enabled_errands[${product_install_uuid}][post_deploy_errands][]=broker-registrar" -X POST)
+  "${opsmgr_url}/api/v0/installations" -d "ignore_warnings=1" -X POST)
 installation_id=$(echo $response | jq -r .install.id)
 
 set +x # silence print commands
