@@ -57,8 +57,7 @@ prev_version=$(curl_auth -s "${opsmgr_url}/api/v0/deployed/products" | jq -r ".[
 
 if [[ "${prev_version}X" == "X" ]]; then
   echo Adding product ${product_version} to the installation
-  curl -f ${insecure} -H "Authorization: Bearer ${access_token}" \
-    "${opsmgr_url}/api/v0/staged/products" -X POST \
+  curl_auth "${opsmgr_url}/api/v0/staged/products" -X POST \
       -d "name=dingo-backup-storage&product_version=${product_version}"
 else
   echo Upgrading product to ${product_version}
@@ -73,8 +72,7 @@ product_install_uuid=$(curl_auth -s "${opsmgr_url}/api/v0/staged/products" | jq 
 echo "Installing product (guid ${product_install_uuid})"
 
 echo "Running installation process"
-response=$(curl -f ${insecure} -H "Authorization: Bearer ${access_token}" \
-  "${opsmgr_url}/api/v0/installations" -d "ignore_warnings=1" -X POST)
+response=$(curl_auth_quiet "${opsmgr_url}/api/v0/installations" -d "ignore_warnings=1" -X POST)
 installation_id=$(echo $response | jq -r .install.id)
 
 set +x # silence print commands
