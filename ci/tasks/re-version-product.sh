@@ -18,10 +18,6 @@ echo Updating metadata/dingo-backup-storage.yml
 sed -i -e "s/^product_version:.*$/product_version: \"${next_tile_version}\"/" unpack/metadata/dingo-backup-storage.yml
 cat unpack/metadata/dingo-backup-storage.yml
 
-echo Looking up all previous versions to generate content_migrations/dingo-backup-storage.yml
-./tile/ci/tasks/opsmgr16_content_migration.rb ${next_tile_version} unpack/content_migrations/dingo-backup-storage.yml
-cat unpack/content_migrations/dingo-backup-storage.yml
-
 cd unpack
 zip -r -f ${zip_tile_path} *
 
