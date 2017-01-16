@@ -5,7 +5,16 @@ job_types:
   - {name: ssh_user, release: dingo-backup-storage}
   static_ip: 1
   dynamic_ip: 0
-  max_in_flight: 500
+  max_in_flight: 4
+  single_az_only: true
+  instance_definition:
+    name: instances
+    type: integer
+    configurable: false
+    default: 1
+    constraints:
+      min: 1
+      max: 1
   resource_definitions:
     - name: ram
       type: integer
@@ -29,14 +38,6 @@ job_types:
       type: integer
       configurable: true
       default: 1
-  instance_definition:
-    name: instances
-    type: integer
-    configurable: false
-    default: 1
-    constraints:
-      min: 1
-      max: 1
   manifest: |
     ssh_user:
       username: (( ssh_user_username.value ))
