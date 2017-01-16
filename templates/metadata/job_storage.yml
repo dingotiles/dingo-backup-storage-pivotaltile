@@ -39,6 +39,6 @@ job_types:
         max: 1
   manifest: |
     ssh_user:
-      username: (( ssh_user_username ))
+      username: (( ssh_user_username.value ))
       public_key: (( ssh_user_key.public_key_pem ))
       private_key: (( ssh_user_key.private_key_pem ))
