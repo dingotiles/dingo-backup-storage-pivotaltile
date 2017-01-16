@@ -2,4 +2,4 @@
 stemcell_criteria:
   os: ubuntu-trusty
   requires_cpi: false
-  version: "3262.2"
+  version: "3312.12"
