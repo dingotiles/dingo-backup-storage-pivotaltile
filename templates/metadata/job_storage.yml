@@ -1,0 +1,50 @@
+job_types:
+- name: storage
+  resource_label: Backup Storage
+  templates:
+  - {name: ssh_user, release: dingo-backup-storage}
+  static_ip: 1
+  dynamic_ip: 0
+  max_in_flight: 500
+  resource_definitions:
+    - name: ram
+      type: integer
+      configurable: true
+      default: 1024
+      constraints:
+        min: 1024
+    - name: ephemeral_disk
+      type: integer
+      configurable: true
+      default: 2048
+      constraints:
+        min: 2048
+    - name: persistent_disk
+      type: integer
+      configurable: true
+      default: 102400
+      constraints:
+        min: 10240
+    - name: cpu
+      type: integer
+      configurable: true
+      default: 1
+  instance_definitions:
+    - name: instances
+      type: integer
+      configurable: false
+      default: 1
+      # broker references vault via first_ip
+      constraints:
+        min: 1
+        max: 1
+  property_blueprints:
+    - name: vm_credentials
+      type: salted_credentials
+      default:
+        identity: vcap
+  manifest: |
+    ssh_user:
+      username: (( ssh_user_username ))
+      public_key: (( ssh_user_key.public_key_pem ))
+      private_key: (( ssh_user_key.private_key_pem ))

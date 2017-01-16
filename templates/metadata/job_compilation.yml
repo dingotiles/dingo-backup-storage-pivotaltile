@@ -1,0 +1,28 @@
+job_types:
+- name: compilation
+  resource_label: compilation
+  static_ip: 0
+  dynamic_ip: 1
+  max_in_flight: 4
+  resource_definitions:
+    - name: ram
+      type: integer
+      configurable: true
+      default: 2048
+    - name: ephemeral_disk
+      type: integer
+      configurable: true
+      default: 10240
+    - name: persistent_disk
+      type: integer
+      configurable: false
+      default: 0
+    - name: cpu
+      type: integer
+      configurable: true
+      default: 2
+  instance_definitions:
+    - name: instances
+      type: integer
+      configurable: true
+      default: 4

@@ -1,0 +1,17 @@
+---
+platform: linux
+image: docker:///dingotiles/dingo-backup-storage-pivotaltile-pipeline
+
+inputs:
+- name: tile
+- name: tile-version
+
+params:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+  AWS_DEFAULT_REGION: ap-southeast-1
+  from_bucket:
+  to_bucket:
+
+run:
+  path: tile/ci/tasks/promote-public.sh

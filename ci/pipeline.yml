@@ -1,0 +1,187 @@
+---
+groups:
+- name: pipeline
+  jobs:
+  - create-product
+  - shipit
+  - patch
+  - promote
+- name: stemcells
+  jobs: [upload-stemcell]
+- name: image
+  jobs: [build-task-image]
+
+jobs:
+- name: upload-stemcell
+  plan:
+  - aggregate:
+    - get: tile
+    - get: pivnet-stemcell
+      trigger: true
+      params: {globs: ["*vsphere*"]}
+  - aggregate:
+    - task: upload-stemcell-opsmgr17
+      file: tile/ci/tasks/upload-stemcell.yml
+      params:
+        opsmgr_url: {{opsmgr17-url}}
+        opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
+        opsmgr_username: {{opsmgr17-username}}
+        opsmgr_password: {{opsmgr17-password}}
+
+- name: create-product
+  serial_groups: [opsmgr17]
+  plan:
+  - aggregate:
+    - get: tile
+    - get: product-tile
+      trigger: true
+    - get: dingo-backup-storage-boshrelease
+      trigger: true
+      params: {tarball: true}
+    - get: pivnet-stemcell
+      trigger: true
+      passed: [upload-stemcell]
+    - get: tile-version
+      params: {pre: rc}
+  - task: generate-product
+    file: tile/ci/tasks/generate-product.yml
+    params:
+      AWS_ACCESS_KEY: {{dingotiles-aws-access}}
+      AWS_SECRET_KEY: {{dingotiles-aws-secret}}
+  - put: generated-tile
+    params: {file: product/dingo-backup-storage-*.pivotal}
+  - put: tile-version
+    params: {file: tile-version/number}
+  - task: upload-product-opsmgr17
+    file: tile/ci/tasks/upload-product.yml
+    params:
+      opsmgr_url: {{opsmgr17-url}}
+      opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
+      opsmgr_username: {{opsmgr17-username}}
+      opsmgr_password: {{opsmgr17-password}}
+      opsmgr_version: 1.7
+
+- name: shipit
+  serial_groups: [opsmgr17]
+  plan:
+  - aggregate:
+    - { get: tile }
+    - { get: generated-tile, passed: [create-product] }
+    - { get: tile-version,   passed: [create-product], params: { bump: final } }
+  - task: re-version-product
+    file: tile/ci/tasks/re-version-product.yml
+    params:
+      AWS_ACCESS_KEY: {{dingotiles-aws-access}}
+      AWS_SECRET_KEY: {{dingotiles-aws-secret}}
+  - put: tile-version
+    params: {file: tile-version/number}
+  - put: generated-tile
+    params: {file: reversioned-product/dingo-backup-storage-*.pivotal}
+  - aggregate:
+    - task: upload-product-opsmgr17
+      file: tile/ci/tasks/upload-product.yml
+      params:
+        opsmgr_url: {{opsmgr17-url}}
+        opsmgr_skip_ssl_verification: {{opsmgr17-skip-ssl-verification}}
+        opsmgr_username: {{opsmgr17-username}}
+        opsmgr_password: {{opsmgr17-password}}
+        opsmgr_version: 1.7
+
+- name: patch
+  serial_groups: [opsmgr]
+  plan:
+  - { get: tile-version, passed: [shipit], trigger: true, params: { bump: patch, pre: rc } }
+  - { put: tile-version, params: { file: tile-version/number } }
+
+- name: promote
+  plan:
+  - aggregate:
+    - get: tile
+    - get: tile-version
+      passed: [shipit]
+  - task: promote-public
+    file: tile/ci/tasks/promote-public.yml
+    params:
+      AWS_ACCESS_KEY_ID: {{dingotiles-aws-access}}
+      AWS_SECRET_ACCESS_KEY: {{dingotiles-aws-secret}}
+      AWS_DEFAULT_REGION: ap-southeast-1
+      from_bucket: dingo-backup-storage-pivotaltile
+      to_bucket: dingo-backup-storage-public-pivotaltile
+
+
+- name: build-task-image
+  serial: true
+  plan:
+  - get: docker-image-tile
+    trigger: true
+  - put: docker-image
+    params:
+      build: docker-image-tile/ci/ci_image
+
+resources:
+- name: tile
+  type: git
+  source:
+    uri: git@github.com:dingotiles/dingo-backup-storage-pivotaltile.git
+    branch: {{tile-branch}}
+    private_key: {{github-key}}
+- name: product-tile
+  type: git
+  source:
+    uri: git@github.com:dingotiles/dingo-backup-storage-pivotaltile.git
+    branch: {{tile-branch}}
+    private_key: {{github-key}}
+    paths: [templates]
+- name: docker-image-tile
+  type: git
+  source:
+    uri: git@github.com:dingotiles/dingo-backup-storage-pivotaltile.git
+    branch: {{tile-branch}}
+    private_key: {{github-key}}
+    paths: [ci/ci_image/*]
+- name: docker-image
+  type: docker-image
+  source:
+    email: {{docker-hub-email}}
+    username: {{docker-hub-username}}
+    password: {{docker-hub-password}}
+    repository: dingotiles/dingo-backup-storage-pivotaltile-pipeline
+
+- name: tile-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:dingotiles/dingo-backup-storage-pivotaltile.git
+    branch: version
+    file: version
+    initial_version: 0.0.1
+    private_key: {{github-key}}
+
+- name: dingo-backup-storage-boshrelease
+  type: github-release
+  source:
+    access_token: {{github-release-access-token}}
+    user: dingotiles
+    repository: dingo-backup-storage-boshrelease
+
+- name: pivnet-stemcell
+  type: pivnet
+  source:
+    api_token: {{pivnet-api-token}}
+    product_slug: stemcells
+
+- name: generated-tile
+  type: s3
+  source:
+    access_key_id: {{dingotiles-aws-access}}
+    secret_access_key: {{dingotiles-aws-secret}}
+    bucket: dingo-backup-storage-pivotaltile
+    regexp: dingo-backup-storage-(.*).pivotal
+    region_name: ap-southeast-1
+
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final

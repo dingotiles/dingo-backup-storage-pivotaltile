@@ -1,0 +1,18 @@
+---
+platform: linux
+image: docker:///dingotiles/dingo-backup-storage-pivotaltile-pipeline
+
+inputs:
+- name: tile
+- name: tile-version
+- name: generated-tile
+
+outputs:
+- name: reversioned-product
+
+params:
+  AWS_ACCESS_KEY:
+  AWS_SECRET_KEY:
+
+run:
+  path: tile/ci/tasks/re-version-product.sh
