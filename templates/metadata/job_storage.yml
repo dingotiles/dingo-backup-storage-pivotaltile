@@ -40,7 +40,9 @@ job_types:
       default: 1
   property_blueprints:
   - name: ssh_user_username
-    type: secret
+    type: string
+    configurable: true
+    default: dingo
   - name: ssh_user_key
     type: rsa_pkey_credentials
   manifest: |
