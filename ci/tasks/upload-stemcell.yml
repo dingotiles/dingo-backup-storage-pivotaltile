@@ -1,6 +1,6 @@
 ---
 platform: linux
-image: docker:///dingotiles/dingo-backup-storage-pivotaltile-pipeline
+image: docker:///dingotiles/dingo-postgresql-pivotaltile-pipeline
 
 inputs:
 - name: tile
